@@ -33,6 +33,13 @@ cldDR_cloud_density_datarefs = find_dataref("volumetric_clouds/weather/density")
 cldDR_cloud_coverage_datarefs = find_dataref("volumetric_clouds/weather/coverage");
 
 simDR_whiteout = find_dataref("sim/private/controls/skyc/white_out_in_clouds");
+
+cld_coverage_few = 0.2
+cld_coverage_sct = 0.6
+cld_coverage_bkn = 0.9
+cld_coverage_ovc = 1.1
+
+
 function animate_value(current_value, target, min, max, speed)
 
     local fps_factor = math.min(0.001, speed * SIM_PERIOD)
@@ -56,14 +63,17 @@ end
 function flight_start()
   simDR_whiteout=0
 end
+
 function after_physics()
   --print(simDR_whiteout)
   local targetSungain=2.25
-  local cirrusOnly=0
+  local singleLayerOnly =0
+  local cirrusOnly = 0
+
   for i = 0, 2, 1 do
     cirrusOnly=cirrusOnly+simDR_cloud_type_datarefs[i]
     if simDR_cloud_coverage_datarefs[i] > 1 then --few scattered
-      cirrusOnly=cirrusOnly-1
+      cirrusOnly=cirrusOnly+1
     end
   end
   
@@ -71,22 +81,31 @@ function after_physics()
     simDR_override_clouds=1
     for i = 0, 2, 1 do
       cldDR_cloud_base_datarefs[i]=animate_value(cldDR_cloud_base_datarefs[i],simDR_cloud_base_datarefs[i],0,30000,0.1)
-      
-      if simDR_cloud_type_datarefs[i]>1 then 
-	  cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],simDR_cloud_tops_datarefs[i]-cldDR_cloud_base_datarefs[i],0,30000,0.05)
-	  cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],(simDR_cloud_coverage_datarefs[i] / 4),0,0.98,0.1)
-      else --scattered few
-	  cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],250,0,30000,0.1)
-	  cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],0.08,0,0.98,0.1)
-	  targetSungain=100
+     cld_type = simDR_cloud_type_datarefs[i]
+	 print(cld_type)
+      if cld_type == 1 then --Few Cumulus
+         cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],250,0,30000,0.1)
+         cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],cld_coverage_few,0,cld_coverage_ovc,0.5) 
+         targetSungain=100
+      elseif cld_type == 2 then --Scattered Cumulus
+         cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],simDR_cloud_tops_datarefs[i]-cldDR_cloud_base_datarefs[i],0,30000,0.05)
+         cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],cld_coverage_sct,0,cld_coverage_ovc,0.5)        
+      elseif cld_type == 3 then --Broken Cumulus
+         cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],simDR_cloud_tops_datarefs[i]-cldDR_cloud_base_datarefs[i],0,30000,0.05)
+         cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],cld_coverage_bkn,0,cld_coverage_ovc,0.5)        
+      elseif cld_type == 4 or cld_type == 5 then --Overcast & Stratus
+         cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],simDR_cloud_tops_datarefs[i]-cldDR_cloud_base_datarefs[i],0,30000,0.05)
+         cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],cld_coverage_ovc,0,cld_coverage_ovc,0.5) 
+	  else -- no clouds
+		 cldDR_cloud_height_datarefs[i]=animate_value(cldDR_cloud_height_datarefs[i],0,0,30000,0.05)
+         cldDR_cloud_coverage_datarefs[i]=animate_value(cldDR_cloud_coverage_datarefs[i],0,0,cld_coverage_ovc,0.5) 
       end
-      cldDR_cloud_density_datarefs[i]=getDensity(i)
-      
-      
+	  cldDR_cloud_density_datarefs[i]=getDensity(i)
+
       if simDR_cloud_type_datarefs[i] >0 then
-	cldDR_cloud_type_datarefs[i]=simDR_cloud_type_datarefs[i]
+	    cldDR_cloud_type_datarefs[i]=simDR_cloud_type_datarefs[i]
       elseif cldDR_cloud_coverage_datarefs[i]<0.05 then
-	cldDR_cloud_type_datarefs[i]=0
+	    cldDR_cloud_type_datarefs[i]=0
       end
       if simDR_cloud_type_datarefs[i]==4 then targetSungain=1 end
     end
