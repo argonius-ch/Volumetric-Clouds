@@ -67,7 +67,6 @@ end
 function after_physics()
   --print(simDR_whiteout)
   local targetSungain=2.25
-  local singleLayerOnly =0
   local cirrusOnly = 0
 
   for i = 0, 2, 1 do
