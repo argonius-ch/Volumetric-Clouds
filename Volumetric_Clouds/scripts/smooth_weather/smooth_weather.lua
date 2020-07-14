@@ -35,9 +35,9 @@ cldDR_cloud_coverage_datarefs = find_dataref("volumetric_clouds/weather/coverage
 simDR_whiteout = find_dataref("sim/private/controls/skyc/white_out_in_clouds");
 
 cld_coverage_few = 0.2
-cld_coverage_sct = 0.6
-cld_coverage_bkn = 0.9
-cld_coverage_ovc = 1.1
+cld_coverage_sct = 0.5
+cld_coverage_bkn = 0.8
+cld_coverage_ovc = 1.0
 
 
 function animate_value(current_value, target, min, max, speed)
