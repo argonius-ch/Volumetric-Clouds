@@ -431,7 +431,7 @@ PLUGIN_API int XPluginStart(char* plugin_name, char* plugin_signature, char* plu
 	detail_noise_ratio_datarefs[3] = export_float_vector_dataref("volumetric_clouds/overcast/detail_noise_ratios", {0.625, 0.25, 0.125});
 	detail_noise_ratio_datarefs[4] = export_float_vector_dataref("volumetric_clouds/stratus/detail_noise_ratios", {0.625, 0.25, 0.125});
 
-
+	cloud_tint_dataref = export_float_vector_dataref("volumetric_clouds/cloud_tint", {0.95, 0.95, 0.95});
 
 	
 
@@ -445,8 +445,8 @@ PLUGIN_API int XPluginStart(char* plugin_name, char* plugin_signature, char* plu
 	sun_tint_blue_dataref = XPLMFindDataRef("sim/graphics/misc/outside_light_level_b");
 
 	sun_gain_dataref = export_float_dataref("volumetric_clouds/sun_gain", 2.25);
-	cloud_tint_dataref = XPLMFindDataRef("volumetric_clouds/cloud_tint");
-	atmosphere_tint_dataref = XPLMFindDataRef("volumetric_clouds/atmosphere_tint");
+
+	atmosphere_tint_dataref = export_float_vector_dataref("volumetric_clouds/atmosphere_tint", {0.35, 0.575, 1.0});
 	atmospheric_blending_dataref = export_float_dataref("volumetric_clouds/atmospheric_blending", 0.15);
 
 	forward_mie_scattering_dataref = export_float_dataref("volumetric_clouds/forward_mie_scattering", 0.78);
@@ -614,8 +614,6 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID sender_plugin, int message_ty
 		lua_cloud_height_datarefs = XPLMFindDataRef("volumetric_clouds/weather/height");
 		lua_cloud_density_datarefs = XPLMFindDataRef("volumetric_clouds/weather/density");
 		lua_cloud_coverage_datarefs = XPLMFindDataRef("volumetric_clouds/weather/coverage");
-		cloud_tint_dataref = XPLMFindDataRef("volumetric_clouds/cloud_tint");
-		atmosphere_tint_dataref = XPLMFindDataRef("volumetric_clouds/atmosphere_tint");
 		notify_datarefs();
 	}
 	XTLuaXPluginReceiveMessage(sender_plugin,message_type,callback_parameters);
